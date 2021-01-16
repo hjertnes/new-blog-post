@@ -32,20 +32,38 @@ func getPath() string{
 }
 
 func main(){
+	statusOpt := false
+	for i := range os.Args{
+		if os.Args[i] == "--status"{
+			statusOpt = true
+		}
+	}
 	now := time.Now()
 	dateString := now.Format("2006-01-02")
 	dateTimeString := now.Format("2006-01-02T15:04:05-07:00")
 	path := getPath()
-	filename, err := textinput.Run("Filename", "Filename", fmt.Sprintf("%s/%s-", path, dateString))
+	filenamePre := fmt.Sprintf("%s/%s-", path, dateString)
+	filename, err := textinput.Run(fmt.Sprintf("Filename: %s", filenamePre))
 	if err != nil{
 		panic(err)
 	}
 
-	title, err := textinput.Run("Title", "Title", "")
-	if err != nil{
-		panic(err)
+	filename = fmt.Sprintf("%s%s.md", filenamePre, filename)
+
+	title := ""
+
+	if !statusOpt{
+		title, err = textinput.Run("Title: ")
+		if err != nil{
+			panic(err)
+		}
+
+		if title == " "{
+			title = ""
+		}
 	}
 
+	
 	if utils.FileExist(filename){
 		fmt.Println("File exists, pick another a filename")
 		os.Exit(1)
@@ -55,6 +73,7 @@ func main(){
 		"---",
 		fmt.Sprintf("date: \"%s\"", dateTimeString),
 		fmt.Sprintf("title: \"%s\"", title),
+		fmt.Sprintf("type: \"post\""),
 		"---",
 		"",
 	}

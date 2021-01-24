@@ -259,7 +259,7 @@ func photo() (string, error){
 		if err != nil{
 			return "", err
 		}
-		elements = append(elements, fmt.Sprintf("![](%s)", photoName))
+		elements = append(elements, fmt.Sprintf("![](/%s)", photoName))
 	}
 
 	return strings.Join(elements, "\n"), nil

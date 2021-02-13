@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hjertnes/new-blog-post/textinput"
 	"github.com/hjertnes/utils"
+	"github.com/rotisserie/eris"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -86,18 +87,30 @@ func writeFile(filename, title, dateTimeString, content string) error{
 		content,
 	}
 
-
 	err := ioutil.WriteFile(filename, []byte(strings.Join(data, "\n")), 0600)
 	if err != nil{
 		return err
 	}
 
-	editor := getEditor()
-	cmd := exec.Command(editor, filename)
-
-	err = cmd.Start()
+	err = editFile(filename)
 	if err != nil{
 		return err
+	}
+
+
+
+	return nil
+}
+
+func editFile(path string) error {
+	editor := getEditor()
+	cmd := exec.Command(editor, path) // #nosec G204
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return eris.Wrap(err, "could not open file in editor")
 	}
 
 	return nil
